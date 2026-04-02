@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Customer Form</title>
+
+<style>
+body{
+    font-family: Arial;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.container{
+    width:350px;
+    padding:20px;
+    border:1px solid black;
+}
+.row{
+    display:flex;
+    margin-bottom:10px;
+}
+label{
+    width:100px;
+}
+input{
+    flex:1;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+<h2>Customer Form</h2>
+
+<form action="newcustomer.php" method="get">
+
+<div class="row">
+<label>CID</label>
+<input type="number" name="cid" required>
+</div>
+
+<div class="row">
+<label>Name</label>
+<input type="text" name="cname" required>
+</div>
+
+<div class="row">
+<label>Email</label>
+<input type="email" name="email">
+</div>
+
+<div class="row">
+<label>Age</label>
+<input type="number" name="age">
+</div>
+
+<div class="row">
+<label>City</label>
+<input type="text" name="city">
+</div>
+
+<div class="row">
+<label>State</label>
+<input type="text" name="state">
+</div>
+
+<button type="submit">Submit</button>
+
+</form>
+</div>
+
+</body>
+</html>
