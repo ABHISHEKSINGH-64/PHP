@@ -59,7 +59,7 @@
 async function loadEmployees() {
     try {
         // Fetch data from PHP API
-        const response = await fetch("../api/getemplist.php");
+        const response = await fetch("http://localhost/leapstart/API/getemplist.php");
         const data = await response.json();
 
         const tableBody = document.querySelector("#empTable tbody");
@@ -73,7 +73,7 @@ async function loadEmployees() {
                 <td>${emp.job}</td>
                 <td>${emp.salary}</td>
                 <td>${emp.joindate}</td>
-                <td>${emp.deptno}</td>
+                <td>${emp.deptcode}</td>
                 <td>${emp.common}</td>
                 <td>${emp.mgr}</td>
                 <td>${emp.email}</td>
