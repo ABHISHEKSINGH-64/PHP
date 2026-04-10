@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee List</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: auto;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Employee List</h2>
+
+<table id="empTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Job</th>
+            <th>Salary</th>
+            <th>Join Date</th>
+            <th>Dept No</th>
+            <th>Common</th>
+            <th>Manager</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Data will come here -->
+    </tbody>
+</table>
+
+<script>
+async function loadEmployees() {
+    try {
+        // Fetch data from PHP API
+        const response = await fetch("../api/getemplist.php");
+        const data = await response.json();
+
+        const tableBody = document.querySelector("#empTable tbody");
+
+        data.forEach(emp => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${emp.empno}</td>
+                <td>${emp.ename}</td>
+                <td>${emp.job}</td>
+                <td>${emp.salary}</td>
+                <td>${emp.joindate}</td>
+                <td>${emp.deptno}</td>
+                <td>${emp.common}</td>
+                <td>${emp.mgr}</td>
+                <td>${emp.email}</td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+// Load data on page load
+loadEmployees();
+</script>
+
+</body>
+</html>

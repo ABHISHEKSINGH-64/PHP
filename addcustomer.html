@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Registration</title>
+</head>
+<body>
+
+<h2>Customer Registration</h2>
+
+<form method="post" action="addcustomer.php">
+  
+  <label>Customer ID:</label>
+  <input type="text" name="cid" required><br><br>
+
+  <label>Name:</label>
+  <input type="text" name="cname" required><br><br>
+
+  <label>Email:</label>
+  <input type="email" name="email" required><br><br>
+
+  <label>Age:</label>
+  <input type="number" name="age" required><br><br>
+
+  <label>State:</label>
+  <select id="state" name="state" required>
+    <option>Loading states...</option>
+  </select><br><br>
+
+  <label>City:</label>
+  <select id="city" name="city" required disabled>
+    <option>Select state first</option>
+  </select><br><br>
+
+  <button type="submit">Submit</button>
+
+</form>
+
+<script>
+const stateDropdown = document.getElementById("state");
+const cityDropdown = document.getElementById("city");
+
+const API_BASE = "https://countriesnow.space/api/v0.1";
+
+// POST helper
+async function postRequest(url, body) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+  return data.data;
+}
+
+// Load states
+async function loadStates() {
+  const data = await postRequest(
+    `${API_BASE}/countries/states`,
+    { country: "India" }
+  );
+
+  stateDropdown.innerHTML = `<option value="">Select State</option>`;
+
+  data.states.forEach(state => {
+    const option = document.createElement("option");
+    option.value = state.name;
+    option.textContent = state.name;
+    stateDropdown.appendChild(option);
+  });
+}
+
+// Load cities
+async function loadCities(state) {
+  cityDropdown.innerHTML = `<option>Loading...</option>`;
+  cityDropdown.disabled = true;
+
+  const cities = await postRequest(
+    `${API_BASE}/countries/state/cities`,
+    {
+      country: "India",
+      state: state
+    }
+  );
+
+  cityDropdown.innerHTML = `<option value="">Select City</option>`;
+
+  cities.forEach(city => {
+    const option = document.createElement("option");
+    option.value = city;
+    option.textContent = city;
+    cityDropdown.appendChild(option);
+  });
+
+  cityDropdown.disabled = false;
+}
+
+// Event
+stateDropdown.addEventListener("change", function () {
+  loadCities(this.value);
+});
+
+// Initial call
+loadStates();
+</script>
+
+</body>
+</html>
