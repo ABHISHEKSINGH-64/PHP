@@ -16,8 +16,8 @@ if (isset($_GET["token"])) {
         $cn = new PDO($dsn, $username, $password);
         $cn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // check token (use lowercase table name)
-        $qry = "SELECT * FROM Tokens WHERE token = :token";
+        // check token
+        $qry = "SELECT * FROM tokens WHERE token = :token";
         $stmt = $cn->prepare($qry);
         $stmt->execute(['token' => $token]);
         $x = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -30,7 +30,7 @@ if (isset($_GET["token"])) {
             exit;
         }
 
-        // fetch employee data
+        // fetch emp table
         $query = "SELECT * FROM emp";
         $stmt = $cn->prepare($query);
         $stmt->execute();
