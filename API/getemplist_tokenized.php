@@ -1,57 +1,30 @@
 <?php
 header('Content-Type: application/json');
 
-if (isset($_GET["token"])) {
+$host = "localhost";
+$port = "5432";
+$dbname = "postgres";
+$user = "postgres";
+$password = "Abhishek@123";
 
-    $token = $_GET["token"];
+try {
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
+    $pdo = new PDO($dsn, $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $host = 'localhost';
-    $port = '5432';
-    $dbname = 'BANKING';
-    $username = 'postgres';
-    $password = 'Abhishek@123';
+    $sql = "SELECT * FROM emp";
+    $stmt = $pdo->query($sql);
+    $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    try {
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-        $cn = new PDO($dsn, $username, $password);
-        $cn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo json_encode([
+        "status" => "success",
+        "data" => $employees
+    ], JSON_PRETTY_PRINT);
 
-        // ✅ Fix case if needed
-        $qry = 'SELECT * FROM tokens WHERE token = :token';
-        $stmt = $cn->prepare($qry);
-        $stmt->execute(['token' => $token]);
-        $x = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if (count($x) === 0) {
-            echo json_encode([
-                "status" => "error",
-                "message" => "Invalid token"
-            ], JSON_PRETTY_PRINT);
-            exit;
-        }
-
-        // ✅ Fix table name if needed
-        $query = 'SELECT * FROM public.emp';
-        $stmt = $cn->prepare($query);
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode([
-            "status" => "success",
-            "data" => $rows
-        ], JSON_PRETTY_PRINT);
-
-    } catch (PDOException $e) {
-        echo json_encode([
-            "status" => "error",
-            "message" => $e->getMessage()
-        ], JSON_PRETTY_PRINT);
-    }
-
-} else {
+} catch (PDOException $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Token is missing"
-    ], JSON_PRETTY_PRINT);
+        "message" => $e->getMessage()
+    ]);
 }
 ?>
