@@ -16,8 +16,8 @@ if (isset($_GET["token"])) {
         $cn = new PDO($dsn, $username, $password);
         $cn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // check token
-        $qry = "SELECT * FROM tokens WHERE token = :token";
+        // ✅ Fix case if needed
+        $qry = 'SELECT * FROM tokens WHERE token = :token';
         $stmt = $cn->prepare($qry);
         $stmt->execute(['token' => $token]);
         $x = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -30,8 +30,8 @@ if (isset($_GET["token"])) {
             exit;
         }
 
-        // fetch emp table
-        $query = "SELECT * FROM emp";
+        // ✅ Fix table name if needed
+        $query = 'SELECT * FROM public.emp';
         $stmt = $cn->prepare($query);
         $stmt->execute();
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -53,6 +53,5 @@ if (isset($_GET["token"])) {
         "status" => "error",
         "message" => "Token is missing"
     ], JSON_PRETTY_PRINT);
-    exit;
 }
 ?>
