@@ -1,43 +1,59 @@
 <?php
-if($_SERVER["REQUEST_METHOD"] == "POST")
-{
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    // Database Connection
     $host = "localhost";
     $port = "5432";
     $dbname = "Leapstart";
     $username = "postgres";
     $password = "Abhishek@123";
 
-    $idno = trim($_POST["idno"]);
-    $user_password = trim($_POST["user_password"]);
+    // Get Form Data Safely
+    $idno = $_POST["idno"] ?? "";
+    $user_password = $_POST["user_password"] ?? "";
 
-    try{
+    // Check Empty Fields
+    if (empty($idno) || empty($user_password)) {
+        exit("Please enter ID Number and Password");
+    }
+
+    try {
+        // Connect to PostgreSQL
         $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
         $pdo = new PDO($dsn, $username, $password);
+
+        // Error Mode
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $stmt = $pdo->prepare('SELECT COUNT(*) as count 
-                               FROM candidates 
-                               WHERE idno = :idno 
-                               AND "password" = :user_password');
+        // Query
+        $stmt = $pdo->prepare('
+            SELECT COUNT(*) AS count 
+            FROM candidates 
+            WHERE idno = :idno 
+            AND "password" = :user_password
+        ');
 
+        // Execute Query
         $stmt->execute([
             ':idno' => $idno,
             ':user_password' => $user_password
         ]);
 
+        // Fetch Result
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if($result["count"] > 0){
+        // Login Check
+        if ($result["count"] > 0) {
             echo "Login Success";
-        }else{
+        } else {
             echo "Invalid ID Number or Password";
         }
 
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         echo "Database Error: " . $e->getMessage();
     }
 
-}else{
+} else {
     echo "Use POST Method";
 }
 ?>
