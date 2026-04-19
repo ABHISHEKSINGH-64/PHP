@@ -1,59 +1,109 @@
 <?php
+header('Content-Type: application/json');
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Database Connection
+    // Database Details
     $host = "localhost";
     $port = "5432";
     $dbname = "Leapstart";
     $username = "postgres";
-    $password = "Abhishek@123";
+    $dbpassword = "Abhishek@123";
 
-    // Get Form Data Safely
-    $idno = $_POST["idno"] ?? "";
-    $user_password = $_POST["user_password"] ?? "";
+    // Get POST Values
+    $idno = isset($_POST["idno"]) ? trim($_POST["idno"]) : "";
+    $password = isset($_POST["password"]) ? trim($_POST["password"]) : "";
 
-    // Check Empty Fields
-    if (empty($idno) || empty($user_password)) {
-        exit("Please enter ID Number and Password");
+    // Check Empty
+    if ($idno == "" || $password == "") {
+        echo json_encode([
+            "status" => "error",
+            "message" => "Please enter ID Number and Password"
+        ], JSON_PRETTY_PRINT);
+        exit();
     }
 
     try {
-        // Connect to PostgreSQL
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-        $pdo = new PDO($dsn, $username, $password);
 
-        // Error Mode
+        // Connect PostgreSQL
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+        $pdo = new PDO($dsn, $username, $dbpassword);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Query
+        // SQL Query
         $stmt = $pdo->prepare('
-            SELECT COUNT(*) AS count 
-            FROM candidates 
-            WHERE idno = :idno 
-            AND "password" = :user_password
+            SELECT idno, name, mobile, email, dob, "password", isactive
+            FROM candidates
+            WHERE idno = :idno
         ');
 
-        // Execute Query
+        // Execute
         $stmt->execute([
-            ':idno' => $idno,
-            ':user_password' => $user_password
+            ':idno' => $idno
         ]);
 
-        // Fetch Result
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $candidate = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Login Check
-        if ($result["count"] > 0) {
-            echo "Login Success";
-        } else {
-            echo "Invalid ID Number or Password";
+        // User Not Found
+        if (!$candidate) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Invalid ID Number or Password"
+            ], JSON_PRETTY_PRINT);
+            exit();
         }
 
+        $storedPassword = $candidate["password"];
+
+        // Password Check
+        $passwordMatched = false;
+
+        if ($password === $storedPassword) {
+            $passwordMatched = true;
+        } elseif (password_verify($password, $storedPassword)) {
+            $passwordMatched = true;
+        }
+
+        if (!$passwordMatched) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Invalid ID Number or Password"
+            ], JSON_PRETTY_PRINT);
+            exit();
+        }
+
+        // Check Active Status
+        if (!$candidate["isactive"]) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Account is inactive"
+            ], JSON_PRETTY_PRINT);
+            exit();
+        }
+
+        // Remove Password from Output
+        unset($candidate["password"]);
+
+        // Success
+        echo json_encode([
+            "status" => "success",
+            "message" => "Login Success",
+            "data" => $candidate
+        ], JSON_PRETTY_PRINT);
+
     } catch (PDOException $e) {
-        echo "Database Error: " . $e->getMessage();
+
+        echo json_encode([
+            "status" => "error",
+            "message" => "Database Error: " . $e->getMessage()
+        ], JSON_PRETTY_PRINT);
     }
 
 } else {
-    echo "Use POST Method";
+
+    echo json_encode([
+        "status" => "error",
+        "message" => "Use POST Method"
+    ], JSON_PRETTY_PRINT);
 }
 ?>
